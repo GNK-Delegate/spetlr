@@ -64,12 +64,12 @@ $resourceTags = @{
   deployedAt="$(Get-Date -Format "o" -AsUTC)"
 }
 
-$resourceTags = ($resourceTags| ConvertTo-Json -Depth 4 -Compress).Replace('"','\"')
+$resourceTags = ($resourceTags| ConvertTo-Json -Depth 4 -Compress)
 
 $dataLakeContainers = (,@(@{"name"="silver"}))
 
 
-$dataLakeContainersJson = ($dataLakeContainers | ConvertTo-Json -Depth 4 -Compress).Replace('"','\"')
+$dataLakeContainersJson = ($dataLakeContainers | ConvertTo-Json -Depth 4 -Compress)
 
 $eventHubConfig = (,@(
     @{
@@ -78,8 +78,15 @@ $eventHubConfig = (,@(
       "captureLocation" = "silver"
     }
 ))
-$eventHubConfigJson = ($eventHubConfig | ConvertTo-Json -Depth 4 -Compress).Replace('"','\"')
+$eventHubConfigJson = ($eventHubConfig | ConvertTo-Json -Depth 4 -Compress)
 
+
+if ($IsLinux)
+{
+    $dataLakeContainersJson = $dataLakeContainersJson -replace '"', '\"'
+    $resourceTags = $resourceTags -replace '"', '\"'
+    $eventHubConfigJson = $eventHubConfigJson -replace '"', '\"'
+}
 
 $sqlAdminSpnName = $cicdSpnName
 
@@ -106,6 +113,7 @@ Write-Host "* Azure EventHubs Namespace       : $ehNamespace" -ForegroundColor W
 Write-Host "* Azure CosmosDb                  : $cosmosName" -ForegroundColor White
 Write-Host "* Azure Log Analytics Workspace   : $logAnalyticsWsName" -ForegroundColor White
 Write-Host "* Mounting SPN                    : $mountSpnName" -ForegroundColor White
+Write-Host "* KeyVault Name                   : $keyVaultName" -ForegroundColor White
 Write-Host "**********************************************************************" -ForegroundColor White
 
 
